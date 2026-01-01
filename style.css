@@ -93,6 +93,8 @@ tbody tr:not(.summary-row):hover { background-color: #222; transform: scale(1.01
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 .sales-actions { display: flex; align-items: center; gap: 15px; }
 .sales-actions button { z-index: 10; position: relative; }
+/* Pushes the arrow icon to the far right, keeping buttons grouped left */
+.sales-actions .arrow-icon { margin-left: auto; }
 
 /* --- INPUTS & UTILS --- */
 .actions { display: flex; gap: 10px; align-items: flex-start; }
@@ -261,10 +263,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     .sales-info { width: 100%; }
     .sales-actions {
         width: 100%;
-        justify-content: space-between;
+        justify-content: flex-start; /* Aligns buttons to the left */
         margin-top: 5px;
     }
-
+    
     /* 6. Modals */
     .modal-content { width: 90% !important; max-height: 85vh; overflow-y: auto; padding: 20px; }
     #sales-modal .row { flex-direction: row; gap: 10px; } 
