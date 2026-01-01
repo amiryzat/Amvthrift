@@ -1,8 +1,8 @@
 // ==========================================
 // ⚠️ YOUR SUPABASE KEYS ⚠️
 // ==========================================
-const SUPABASE_URL = "https://vgfvxwfltpnakfnfcrog.supabase.co";
-const SUPABASE_KEY = "sb_publishable_9OfrTSQEnWdRnZMsTrnzgg__2jWuYbK";
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
