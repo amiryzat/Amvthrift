@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmvInventory</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">AmvInventory</div>
+        <div class="menu">
+            <button onclick="showPage('inventory')" class="active-btn" id="btn-inv">Inventory</button>
+            <button onclick="showPage('sales')" id="btn-sales">Sales</button>
+        </div>
+    </nav>
+
+    <div id="inventory-page" class="page">
+        <header>
+            <h1>Inventory</h1>
+            <div class="actions">
+                <div class="search-wrapper">
+                    <input type="text" id="search-box" placeholder="Search item...">
+                    <button class="clear-btn" id="clear-inv-search" onclick="clearSearch('search-box', 'clear-inv-search')">✕</button>
+                </div>
+                <div class="add-group">
+                    <button class="primary-btn" onclick="openModal()">+ Add Item</button>
+                    <div class="sort-container">
+                        <button id="sort-btn" onclick="toggleSortMenu()" title="Sort Items">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                        </button>
+                        <div id="sort-menu" class="sort-dropdown">
+                            <div id="opt-name" class="sort-option" onclick="applySort('name')"><span>Name (A-Z)</span></div>
+                            <div id="opt-new" class="sort-option" onclick="applySort('date_new')"><span>Newest First</span></div>
+                            <div id="opt-old" class="sort-option" onclick="applySort('date_old')"><span>Oldest First</span></div>
+                            <div id="opt-high" class="sort-option" onclick="applySort('price_high')"><span>Highest Price</span></div>
+                            <div id="opt-low" class="sort-option" onclick="applySort('price_low')"><span>Lowest Price</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="category-section"><div class="section-header"><h3>Clothes <span id="count-cloth" class="count-badge">0</span></h3></div><div class="table-container"><table><thead><tr><th style="width: 5%;">No.</th><th style="width: 25%;">Item Name</th><th style="width: 10%;">Cost</th><th style="width: 10%;">Sell Price</th><th style="width: 10%;">Profit</th><th style="width: 10%;">Loss</th><th style="width: 15%;">Status</th><th style="width: 15%;">Action</th></tr></thead><tbody id="list-cloth"></tbody></table></div></div>
+        <div class="category-section"><div class="section-header"><h3>Pants <span id="count-pant" class="count-badge">0</span></h3></div><div class="table-container"><table><thead><tr><th style="width: 5%;">No.</th><th style="width: 25%;">Item Name</th><th style="width: 10%;">Cost</th><th style="width: 10%;">Sell Price</th><th style="width: 10%;">Profit</th><th style="width: 10%;">Loss</th><th style="width: 15%;">Status</th><th style="width: 15%;">Action</th></tr></thead><tbody id="list-pant"></tbody></table></div></div>
+        <div class="category-section"><div class="section-header"><h3>Accessories <span id="count-accessories" class="count-badge">0</span></h3></div><div class="table-container"><table><thead><tr><th style="width: 5%;">No.</th><th style="width: 25%;">Item Name</th><th style="width: 10%;">Cost</th><th style="width: 10%;">Sell Price</th><th style="width: 10%;">Profit</th><th style="width: 10%;">Loss</th><th style="width: 15%;">Status</th><th style="width: 15%;">Action</th></tr></thead><tbody id="list-accessories"></tbody></table></div></div>
+        <div class="category-section"><div class="section-header"><h3 style="color: #888;">Sold Items <span id="count-sold" class="count-badge">0</span></h3></div><div class="table-container sold-container"><table><thead><tr><th style="width: 5%;">No.</th><th style="width: 18%;">Item Name</th><th style="width: 10%;">Category</th><th style="width: 10%;">Cost</th><th style="width: 10%;">Sell Price</th><th style="width: 8%;">Profit</th><th style="width: 7%;">Loss</th><th style="width: 12%;">Status</th><th style="width: 15%;">Action</th></tr></thead><tbody id="list-sold"></tbody></table></div></div>
+        
+        <div id="inv-empty-state" class="empty-message" style="display: none;">No item found.</div>
+
+        <div id="inventory-total-container" class="inventory-total-container">
+            <span>Total Inventory (Available)</span>
+            <span id="inventory-total-count" class="total-count-value">0</span>
+        </div>
+    </div>
+
+    <div id="sales-page" class="page" style="display: none;">
+        <header>
+            <h1>Sales Tracking</h1>
+            <div class="actions">
+                <div class="search-wrapper">
+                    <input type="text" id="sales-search-box" placeholder="Search Sales...">
+                    <button class="clear-btn" id="clear-sales-search" onclick="clearSearch('sales-search-box', 'clear-sales-search')">✕</button>
+                </div>
+                <button class="primary-btn" onclick="openSalesModal()">+ New Sales</button>
+            </div>
+        </header>
+
+        <div id="section-now" class="sales-section">
+            <h3 class="section-title text-live">Dropping Now</h3>
+            <div id="list-now" class="sales-list-container"></div>
+        </div>
+        <div id="section-soon" class="sales-section">
+            <h3 class="section-title text-upcoming">Coming Soon</h3>
+            <div id="list-soon" class="sales-list-container"></div>
+        </div>
+        <div id="section-completed" class="sales-section">
+            <h3 class="section-title text-completed">Completed</h3>
+            <div id="list-completed" class="sales-list-container"></div>
+        </div>
+
+        <div id="sales-empty-state" class="empty-message" style="display: none;">No item found.</div>
+    </div>
+
+    <div id="sales-overview-page" class="page" style="display: none;">
+        <div class="breadcrumb">
+            <button onclick="showPage('sales')" class="back-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Back to Sales
+            </button>
+        </div>
+        
+        <header>
+            <div>
+                <h1 id="overview-title">Sales Drop</h1>
+                <div id="overview-meta" class="sales-meta" style="margin-top: 5px;">
+                    <span id="overview-date">--/--/----</span>
+                    <span style="opacity: 0.3">•</span>
+                    <span id="overview-status" class="sales-status">...</span>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="search-wrapper">
+                    <input type="text" id="overview-search-box" placeholder="Search item in drop...">
+                    <button class="clear-btn" id="clear-ov-search" onclick="clearSearch('overview-search-box', 'clear-ov-search')">✕</button>
+                </div>
+                <button class="primary-btn" onclick="openAddToDropModal()">+ Add Item</button>
+            </div>
+        </header>
+
+        <div class="category-section"><div class="section-header"><h3>Clothes <span id="ov-count-cloth" class="count-badge">0</span></h3></div><div class="table-container"><table><thead><tr><th style="width: 5%;">No.</th><th style="width: 25%;">Item Name</th><th style="width: 10%;">Cost</th><th style="width: 10%;">Sell Price</th><th style="width: 10%;">Profit</th><th style="width: 10%;">Loss</th><th style="width: 15%;">Status</th><th style="width: 15%;">Action</th></tr></thead><tbody id="ov-list-cloth"></tbody></table></div></div>
+        <div class="category-section"><div class="section-header"><h3>Pants <span id="ov-count-pant" class="count-badge">0</span></h3></div><div class="table-container"><table><thead><tr><th style="width: 5%;">No.</th><th style="width: 25%;">Item Name</th><th style="width: 10%;">Cost</th><th style="width: 10%;">Sell Price</th><th style="width: 10%;">Profit</th><th style="width: 10%;">Loss</th><th style="width: 15%;">Status</th><th style="width: 15%;">Action</th></tr></thead><tbody id="ov-list-pant"></tbody></table></div></div>
+        <div class="category-section"><div class="section-header"><h3>Accessories <span id="ov-count-accessories" class="count-badge">0</span></h3></div><div class="table-container"><table><thead><tr><th style="width: 5%;">No.</th><th style="width: 25%;">Item Name</th><th style="width: 10%;">Cost</th><th style="width: 10%;">Sell Price</th><th style="width: 10%;">Profit</th><th style="width: 10%;">Loss</th><th style="width: 15%;">Status</th><th style="width: 15%;">Action</th></tr></thead><tbody id="ov-list-accessories"></tbody></table></div></div>
+        <div class="category-section"><div class="section-header"><h3 style="color: #888;">Sold Items <span id="ov-count-sold" class="count-badge">0</span></h3></div><div class="table-container sold-container"><table><thead><tr><th style="width: 5%;">No.</th><th style="width: 18%;">Item Name</th><th style="width: 10%;">Category</th><th style="width: 10%;">Cost</th><th style="width: 10%;">Sell Price</th><th style="width: 8%;">Profit</th><th style="width: 7%;">Loss</th><th style="width: 12%;">Status</th><th style="width: 15%;">Action</th></tr></thead><tbody id="ov-list-sold"></tbody></table></div></div>
+        <div id="ov-empty-state" class="empty-message" style="display: none;">No item found.</div>
+
+        <div class="analytics-grid">
+            <div class="analytics-card progress-card">
+                <div class="progress-header"><h3>Sales Progress</h3><span id="progress-percent">0% Sold</span></div>
+                <div class="progress-bar-bg"><div id="progress-fill" class="progress-bar-fill" style="width: 0%;"></div></div>
+                <div class="stats-row">
+                    <div><span class="stat-label">Sold</span> <span id="stat-sold" class="stat-val">0</span></div>
+                    <div><span class="stat-label">Available</span> <span id="stat-available" class="stat-val">0</span></div>
+                </div>
+            </div>
+            <div class="analytics-card financial-card">
+                <div class="fin-box"><span class="stat-label">Total Sales</span><span id="stat-sales-total" class="stat-val large">RM 0</span></div>
+                <div class="fin-box"><span class="stat-label">Profit</span><span id="stat-profit" class="stat-val text-green">RM 0</span></div>
+                <div class="fin-box"><span class="stat-label">Loss</span><span id="stat-loss" class="stat-val text-red">RM 0</span></div>
+                <div class="fin-box highlight"><span class="stat-label">Clean Income</span><span id="stat-clean" class="stat-val text-blue">RM 0</span></div>
+            </div>
+            <div class="analytics-card chart-card">
+                <div class="chart-container">
+                    <div class="pie-chart" id="profit-pie"></div>
+                    <div class="chart-legend">
+                        <div class="legend-item"><span class="dot rolling"></span> <span class="l-text">Rolling (50%)</span> <span id="val-rolling" class="l-val">RM 0</span></div>
+                        <div class="legend-item"><span class="dot saving"></span> <span class="l-text">Saving (30%)</span> <span id="val-saving" class="l-val">RM 0</span></div>
+                        <div class="legend-item"><span class="dot personal"></span> <span class="l-text">Personal (20%)</span> <span id="val-personal" class="l-val">RM 0</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-modal" class="modal"><div class="modal-content"><h2>Add New Item</h2><div class="form-group"><input type="text" id="inp-name" placeholder="Item Name (e.g. Nike Tee)"><select id="inp-category"><option value="Cloth">Cloth</option><option value="Pant">Pant</option><option value="Accessories">Accessories</option></select><div class="row"><input type="number" id="inp-cost" placeholder="Cost (RM)"><input type="number" id="inp-price" placeholder="Sell Price (RM)"></div></div><div class="modal-actions"><button class="cancel-btn" onclick="closeModal()">Cancel</button><button class="primary-btn" onclick="addItem()">Save Item</button></div></div></div>
+    <div id="edit-modal" class="modal"><div class="modal-content"><h2>Edit Item</h2><input type="hidden" id="edit-id"><div class="form-group"><label class="input-label">Item Name</label><input type="text" id="edit-name"><label class="input-label">Category</label><select id="edit-category"><option value="Cloth">Cloth</option><option value="Pant">Pant</option><option value="Accessories">Accessories</option></select><div class="row"><div style="width: 100%"><label class="input-label">Cost (RM)</label><input type="number" id="edit-cost"></div><div style="width: 100%"><label class="input-label">Sell Price (RM)</label><input type="number" id="edit-price"></div></div></div><div class="modal-actions"><button class="cancel-btn" onclick="closeEditModal()">Cancel</button><button class="primary-btn" onclick="saveEditItem()">Save Changes</button></div></div></div>
+    
+    <div id="sales-modal" class="modal">
+        <div class="modal-content" style="overflow:visible;"> <h2 id="sales-modal-title">New Sales Drop</h2>
+            <input type="hidden" id="sales-id">
+            
+            <div class="form-group">
+                <label class="input-label">Sales Name</label>
+                <input type="text" id="sales-name" placeholder="e.g. Nike Drop">
+                
+                <div class="row" style="align-items: flex-end;">
+                    <div style="width: 50%">
+                        <label class="input-label">Sales Date</label>
+                        <input type="date" id="sales-date">
+                    </div>
+
+                    <div style="width: 50%; position: relative;">
+                        <label class="input-label">Sales Time</label>
+                        
+                        <input type="hidden" id="sales-time">
+
+                        <div class="time-picker-group">
+                            <input type="number" id="time-hh" placeholder="HH" min="1" max="12" class="time-input">
+                            <span class="time-colon">:</span>
+                            <input type="number" id="time-mm" placeholder="MM" min="0" max="59" class="time-input">
+                            <button id="time-ampm" class="time-toggle-btn" onclick="toggleAmPm()">PM</button>
+                            
+                            <button class="time-dropdown-trigger" onclick="toggleTimeDropdown()">▼</button>
+                        </div>
+
+                        <div id="time-presets" class="time-dropdown-list">
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeSalesModal()">Cancel</button>
+                <button class="primary-btn" onclick="saveSalesDrop()">Save Sale</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-choice-modal" class="modal"><div class="modal-content" style="text-align: center;"><h2>Add Item to Drop</h2><p style="color: #888; margin-bottom: 20px;">Choose how you want to add items.</p><div style="display: flex; flex-direction: column; gap: 10px;"><button class="primary-btn" style="width: 100%; justify-content: center;" onclick="openSelectInventoryModal()">Select from Inventory</button><button class="edit-btn" style="width: 100%; justify-content: center; padding: 12px;" onclick="openManualAddModal()">Add Item Manually</button></div><button class="cancel-btn" onclick="closeChoiceModal()" style="margin-top: 15px;">Cancel</button></div></div>
+    <div id="select-inv-modal" class="modal"><div class="modal-content" style="width: 500px; max-height: 80vh;"><h2>Select Items</h2><div class="modal-tabs"><button class="tab-btn active" id="tab-Cloth" onclick="switchSelectTab('Cloth')">Clothes</button><button class="tab-btn" id="tab-Pant" onclick="switchSelectTab('Pant')">Pants</button><button class="tab-btn" id="tab-Accessories" onclick="switchSelectTab('Accessories')">Accessories</button></div><div class="search-wrapper" style="width: 100%; margin-bottom: 10px;"><input type="text" id="select-inv-search" placeholder="Search available items..."></div><div id="inventory-selection-list" class="selection-list"></div><div class="modal-actions" style="align-items: center;"><span id="selection-count" style="margin-right: auto; color: #888; font-size: 13px;">0 items selected</span><button class="cancel-btn" onclick="closeSelectInvModal()">Cancel</button><button class="primary-btn" onclick="confirmAddToDrop()">Add Selected</button></div></div></div>
+    <div id="delete-modal" class="modal"><div class="modal-content" style="max-width: 350px; text-align: center;"><h2 style="margin-bottom: 10px;">Delete Item?</h2><p style="color: #aaa; font-size: 14px; margin-bottom: 20px;">Are you sure you want to delete this item? This action cannot be undone.</p><div class="modal-actions" style="justify-content: center; gap: 15px;"><button class="cancel-btn" onclick="closeDeleteModal()" style="border: 1px solid #444; padding: 8px 16px; border-radius: 4px; color: #fff;">Cancel</button><button class="danger-btn" onclick="confirmDelete()">Delete</button></div></div></div>
+    <div id="remove-modal" class="modal"><div class="modal-content" style="max-width: 350px; text-align: center;"><h2 style="margin-bottom: 10px;">Remove from Drop?</h2><p style="color: #aaa; font-size: 14px; margin-bottom: 20px;">This will remove the item from the sale but keep it in your inventory.</p><div class="modal-actions" style="justify-content: center; gap: 15px;"><button class="cancel-btn" onclick="closeRemoveModal()" style="border: 1px solid #444; padding: 8px 16px; border-radius: 4px; color: #fff;">Cancel</button><button class="remove-btn-confirm" onclick="confirmRemove()">Remove</button></div></div></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
