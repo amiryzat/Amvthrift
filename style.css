@@ -223,7 +223,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     padding: 5px 0 !important;
     margin: 0 !important;
     font-size: 14px;
-    -moz-appeareance: textfield;
+    -moz-appearance: textfield;
 }
 .time-input::-webkit-outer-spin-button, .time-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .time-colon { color: #888; font-weight: bold; margin: 0 2px; }
@@ -265,70 +265,3 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
 .time-dropdown-list.show { display: block; }
 .time-option { padding: 8px 12px; font-size: 13px; color: #ccc; cursor: pointer; border-bottom: 1px solid #222; }
 .time-option:hover { background-color: #333; color: #fff; }
-
-/* ... [Previous CSS Unchanged] ... */
-
-/* === NEW: BULK ACTION BAR === */
-.bulk-action-bar {
-    position: fixed;
-    bottom: 30px; left: 50%;
-    transform: translateX(-50%) translateY(100px); /* Start hidden below screen */
-    background: rgba(30, 30, 30, 0.9);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 15px 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    z-index: 2000;
-    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    display: flex; justify-content: center;
-}
-
-.bulk-action-bar.show {
-    transform: translateX(-50%) translateY(0);
-}
-
-.bulk-content { display: flex; align-items: center; gap: 30px; }
-.bulk-count { color: #fff; font-weight: bold; font-size: 15px; }
-.bulk-actions { display: flex; gap: 10px; }
-
-.bulk-btn {
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 13px;
-    transition: 0.2s;
-}
-
-.bulk-btn.mark-sold { background-color: #4ade80; color: #000; }
-.bulk-btn.mark-sold:hover { background-color: #22c55e; }
-
-.bulk-btn.remove { background-color: #facc15; color: #000; }
-.bulk-btn.remove:hover { background-color: #eab308; }
-
-/* CHECKBOX STYLES */
-.check-cell { width: 40px; text-align: center; }
-.item-checkbox {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 18px; height: 18px;
-    background-color: #333;
-    border: 1px solid #555;
-    border-radius: 4px;
-    cursor: pointer;
-    position: relative;
-}
-.item-checkbox:checked {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
-}
-.item-checkbox:checked::after {
-    content: '✔';
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 12px;
-}

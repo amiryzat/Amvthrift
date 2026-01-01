@@ -1,8 +1,8 @@
 // ==========================================
 // ⚠️ YOUR SUPABASE KEYS ⚠️
 // ==========================================
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const SUPABASE_URL = "https://vgfvxwfltpnakfnfcrog.supabase.co";
+const SUPABASE_KEY = "sb_publishable_9OfrTSQEnWdRnZMsTrnzgg__2jWuYbK";
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -733,7 +733,7 @@ function showPage(pageId) {
     
     document.getElementById('btn-inv').classList.remove('active-btn'); 
     document.getElementById('btn-sales').classList.remove('active-btn'); 
-    2
+    
     if (pageId === 'inventory') { 
         document.getElementById('btn-inv').classList.add('active-btn'); 
         currentSalesDropId = null; 
@@ -755,4 +755,4 @@ function showPage(pageId) {
 function toTitleCase(str) { return str.replace(/\w\S*/g, function(txt) { if (txt === txt.toUpperCase()) return txt; return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); }); }
 function triggerAnimation(id) { const el = document.getElementById(id); el.classList.remove('animate-enter'); void el.offsetWidth; el.classList.add('animate-enter'); }
 function setupEnterSubmit(modalId, func) { const modal = document.getElementById(modalId); if(modal) modal.querySelectorAll('input, select').forEach(i => { i.addEventListener('keyup', e => { if (e.key === 'Enter') func(); }); }); }
-function toggleSortMenu() { document.getElementById('sort-menu').classList.toggle('show'); }2
+function toggleSortMenu() { document.getElementById('sort-menu').classList.toggle('show'); }
