@@ -265,3 +265,43 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
 .time-dropdown-list.show { display: block; }
 .time-option { padding: 8px 12px; font-size: 13px; color: #ccc; cursor: pointer; border-bottom: 1px solid #222; }
 .time-option:hover { background-color: #333; color: #fff; }
+
+
+/* MOBile Menu */
+/* --- MOBILE OPTIMIZATIONS --- */
+@media screen and (max-width: 768px) {
+    /* 1. Simplify Background */
+    body::before {
+        filter: none !important;
+        animation: none !important;
+        background-image: none !important;
+        background-color: #121212;
+    }
+
+    /* 2. Remove Expensive Glass Filters */
+    nav, 
+    .table-container, 
+    .analytics-card,
+    .sales-card,
+    .modal {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background-color: #1e1e1e !important;
+        box-shadow: none !important;
+        border: 1px solid #333;
+    }
+
+    /* 3. Stop Constant Logo Repainting */
+    .logo {
+        animation: none !important;
+        background: none !important;
+        color: #fff !important;
+        -webkit-text-fill-color: #fff !important;
+    }
+    
+    /* 4. Improve Table Scrolling */
+    .table-container {
+        overflow-x: auto; /* Ensure tables can scroll sideways */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    }
+}
