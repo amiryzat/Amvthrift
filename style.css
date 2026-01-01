@@ -212,30 +212,72 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     .analytics-grid { grid-template-columns: 1fr; gap: 15px; margin-top: 30px; }
     .chart-container { justify-content: center; }
 
-    /* 4. SCROLLABLE TABLES (HORIZONTAL SCROLL) */
-    /* This fixes the overlapping/squashed issue by allowing the table to scroll */
+    /* 4. SCROLLABLE TABLES WITH STICKY ITEM NAMES */
     .table-container {
         display: block;
         width: 100%;
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
-        padding-bottom: 10px; /* Space for scrollbar */
+        -webkit-overflow-scrolling: touch; 
+        padding-bottom: 10px; 
+        position: relative;
     }
 
     table {
-        min-width: 800px; /* FORCE table to be wide enough to not wrap content */
+        min-width: 800px;
         width: 100%;
+        border-collapse: separate; /* Required for sticky to work nicely with borders */
+        border-spacing: 0;
     }
 
-    /* Prevent wrapping so columns stay aligned */
+    /* Standard cell styling */
     th, td {
         white-space: nowrap; 
         padding: 10px 12px;
+        background: transparent;
+        border-top: 1px solid #333;
     }
     
-    /* Ensure action buttons don't stack weirdly */
-    .action-cell {
-        flex-wrap: nowrap;
+    /* === STICKY COLUMN CONFIGURATION === */
+    
+    /* Column 1: Item Number */
+    th:nth-child(1), td:nth-child(1) {
+        position: sticky;
+        left: 0;
+        z-index: 10;
+        background-color: #1e1e1e; /* Match container bg to hide scrolling content */
+        width: 45px;
+        min-width: 45px;
+        border-right: 1px solid #333;
+    }
+
+    /* Column 2: Item Name */
+    th:nth-child(2), td:nth-child(2) {
+        position: sticky;
+        left: 45px; /* Starts where col 1 ends */
+        z-index: 10;
+        background-color: #1e1e1e;
+        width: 150px;
+        min-width: 150px;
+        max-width: 150px;
+        border-right: 1px solid #444; /* Divider to show separation from scrollable area */
+        box-shadow: 4px 0 10px rgba(0,0,0,0.3); /* Shadow to indicate scrolling depth */
+        
+        /* TEXT WRAPPING LOGIC */
+        white-space: normal; /* Allow wrapping */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Limit to 2 lines */
+        -webkit-box-orient: vertical;
+        line-height: 1.3;
+        vertical-align: middle;
+    }
+
+    /* Ensure headers have the same sticky behavior & bg */
+    th:nth-child(1), th:nth-child(2) {
+        background-color: #222; /* Slightly lighter for header */
+        z-index: 20; /* Keep headers above everything */
+        border-bottom: 1px solid #444;
     }
 
     /* 5. Sales Cards (List View) */
@@ -244,9 +286,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
         align-items: flex-start;
         gap: 15px;
     }
-    .sales-info {
-        width: 100%;
-    }
+    .sales-info { width: 100%; }
     .sales-actions {
         width: 100%;
         justify-content: space-between;
