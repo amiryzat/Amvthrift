@@ -33,7 +33,7 @@ h1 { font-size: 48px; letter-spacing: -2px; }
 .animate-enter .analytics-grid { opacity: 0; animation: slideUpFade 0.6s ease-out forwards; animation-delay: 0.2s; }
 .table-row-animate { opacity: 0; animation: slideUpFade 0.4s ease-out forwards; }
 
-/* --- TABLES (DESKTOP DEFAULT) --- */
+/* --- TABLES --- */
 .category-section { margin-bottom: 50px; }
 .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
 h3 { font-size: 20px; font-weight: normal; color: #eee; }
@@ -189,7 +189,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
 /* ==========================================================================
    MOBILE ONLY STYLES (Max-Width 768px)
    Everything inside here ONLY affects phone screens.
-   Desktop and Laptop layouts are strictly preserved above.
    ========================================================================== */
 @media screen and (max-width: 768px) {
     /* 1. Reset Page & Layout */
@@ -213,108 +212,47 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     .analytics-grid { grid-template-columns: 1fr; gap: 15px; margin-top: 30px; }
     .chart-container { justify-content: center; }
 
-    /* 4. COMPACT CARD VIEW FOR TABLES */
-    table, thead, tbody, th, td, tr { display: block; }
-    thead { display: none; } /* Hide standard headers */
-    
-    tbody tr {
-        display: flex;
-        flex-wrap: wrap; /* Allows cells to flow like a grid */
-        background: rgba(30, 30, 30, 0.4);
-        border: 1px solid #333;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        position: relative;
-        padding-top: 0;
-    }
-
-    /* --- ITEM HEADER (NO. & NAME) --- 
-       Forces these two to sit side-by-side at the top */
-    
-    /* "No." Cell */
-    td:nth-child(1) {
-        order: 1;
-        width: 50px;
-        border-bottom: 1px solid #333; 
-        border-right: 1px solid #333;
-        justify-content: center;
-        align-items: center;
-        display: flex;
-        padding: 12px 5px;
-        font-weight: bold;
-        color: #666;
-        background: rgba(255,255,255,0.03);
-    }
-    td:nth-child(1)::before { content: none !important; } /* Hide label */
-
-    /* "Item Name" Cell */
-    td:nth-child(2) {
-        order: 2;
-        width: calc(100% - 50px); /* Fill remaining width */
-        border-bottom: 1px solid #333;
-        padding: 12px 15px;
-        font-weight: bold;
-        color: #fff;
-        font-size: 15px;
-        white-space: normal;
-        display: flex;
-        align-items: center;
-    }
-    td:nth-child(2)::before { content: none !important; } /* Hide label */
-
-    /* --- DATA GRID (Cost, Price, Status, etc) --- */
-    td {
-        order: 3;
-        width: 50%; /* 2 items per row */
-        display: flex;
-        flex-direction: column; /* Stack Label above Value */
-        justify-content: center;
-        align-items: flex-start;
-        padding: 8px 12px;
-        font-size: 13px;
-        border-bottom: none;
-        color: #ddd;
-        min-height: 55px;
-    }
-
-    /* Inject Labels for Data Cells */
-    td::before {
-        content: attr(data-label);
-        font-size: 10px;
-        text-transform: uppercase;
-        color: #666;
-        margin-bottom: 4px;
-        font-weight: bold;
-    }
-
-    /* Action Buttons - Full Width at Bottom */
-    td:last-child {
+    /* 4. SCROLLABLE TABLES (HORIZONTAL SCROLL) */
+    /* This fixes the overlapping/squashed issue by allowing the table to scroll */
+    .table-container {
+        display: block;
         width: 100%;
-        order: 100;
-        flex-direction: row;
-        justify-content: flex-end;
-        padding: 10px;
-        background: rgba(0,0,0,0.2);
-        border-top: 1px solid #333;
-        min-height: auto;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+        padding-bottom: 10px; /* Space for scrollbar */
     }
-    td:last-child::before { display: none; }
 
-    /* Special Case: Sold Items Table (Has extra 'Category' column) */
-    /* This ensures Category fits into the grid flow naturally */
-    .sold-container td:nth-child(3) { order: 3; } 
+    table {
+        min-width: 800px; /* FORCE table to be wide enough to not wrap content */
+        width: 100%;
+    }
 
-    /* Summary Row Styling */
-    .summary-row { background-color: rgba(59, 130, 246, 0.1) !important; border-color: rgba(59, 130, 246, 0.3); display: flex; }
-    .summary-row td { width: 50%; border: none; }
-    .summary-row td:first-child { display: none; } /* Hide empty first cell */
-    .summary-row td[data-label="Total"] { width: 100%; text-align: center; align-items: center; background: rgba(0,0,0,0.2); }
-
-    /* 5. Sales Cards */
-    .sales-card { flex-direction: column; align-items: flex-start; gap: 15px; }
-    .sales-info { width: 100%; }
-    .sales-actions { width: 100%; justify-content: space-between; margin-top: 5px; }
+    /* Prevent wrapping so columns stay aligned */
+    th, td {
+        white-space: nowrap; 
+        padding: 10px 12px;
+    }
     
+    /* Ensure action buttons don't stack weirdly */
+    .action-cell {
+        flex-wrap: nowrap;
+    }
+
+    /* 5. Sales Cards (List View) */
+    .sales-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .sales-info {
+        width: 100%;
+    }
+    .sales-actions {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 5px;
+    }
+
     /* 6. Modals */
     .modal-content { width: 90% !important; max-height: 85vh; overflow-y: auto; padding: 20px; }
     #sales-modal .row { flex-direction: row; gap: 10px; } 
@@ -325,7 +263,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     input, select { font-size: 16px; }
     .table-container, .analytics-card, .sales-card, .modal-content { backdrop-filter: none; background-color: #1e1e1e; }
 
-     /* 2. Remove gradient moving background */
+    /* 2. Remove gradient moving background */
      body::before {
         filter: none !important;
         animation: none !important;
@@ -360,5 +298,4 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
         overflow-x: auto; /* Ensure tables can scroll sideways */
         -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
     }
-
 }
