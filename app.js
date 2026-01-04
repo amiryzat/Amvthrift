@@ -329,6 +329,7 @@ function renderTableSection(tableBodyId, countId, items, isSoldTable = false, se
     let lastRowDelay = 0;
 
     items.forEach((item, index) => {
+        // Use the displayed status (which might be masked in sales view)
         const statusClass = item.status === 'sold' ? 'sold' : 'available';
         const cost = parseFloat(item.cost_price) || 0;
         const sell = parseFloat(item.sell_price) || 0;
@@ -519,6 +520,7 @@ function openSalesOverview(id, name, displayDate, rawDate, rawTime) {
 async function fetchSalesItems(dropId, searchQuery = "") {
     if (!dropId) return;
     
+    // This query now returns `sold_in_drop_id` inside the `items` object
     let query = db.from('sales_items').select('*, items(*)').eq('sale_id', dropId);
     
     const { data, error } = await query;
@@ -531,13 +533,30 @@ async function fetchSalesItems(dropId, searchQuery = "") {
         ? flatItems 
         : flatItems.filter(i => i.name.toLowerCase().includes(search));
 
+    // =======================================================
+    // NEW: ISOLATION LOGIC
+    // We mask the status of an item to 'available' IF:
+    // 1. It is 'sold' globally, BUT
+    // 2. It was NOT sold in THIS specific drop (sold_in_drop_id != dropId)
+    // This ensures past drops don't show items as sold if they sold later in a new drop.
+    // =======================================================
+    const processedItems = filteredItems.map(item => {
+        const localItem = { ...item }; // shallow copy
+        
+        if (localItem.status === 'sold' && localItem.sold_in_drop_id !== dropId) {
+            localItem.status = 'available'; // Treated as available for this drop's history
+        }
+        
+        return localItem;
+    });
+
     const clothItems = []; const pantItems = []; const accItems = []; const soldItems = [];
     currentDropItemIds.clear(); 
 
-    let totalSold = 0; let totalItems = filteredItems.length;
+    let totalSold = 0; let totalItems = processedItems.length;
     let totalCost = 0, totalSell = 0, totalProfit = 0, totalLoss = 0;
 
-    filteredItems.forEach(item => {
+    processedItems.forEach(item => {
         currentDropItemIds.add(item.id); 
         const cost = parseFloat(item.cost_price) || 0;
         const sell = parseFloat(item.sell_price) || 0;
@@ -702,13 +721,36 @@ function getSalesStatus(dateStr, timeStr) {
     else if (diffTime < 0) { return { statusText: 'Completed', statusClass: 'status-completed' }; } 
     else { const dropDate = new Date(`${dateStr}T${timeStr}`); const timeDiff = dropDate - now; if (timeDiff <= 0) return { statusText: 'Now Dropping', statusClass: 'status-live' }; else { const hours = Math.floor(timeDiff / (1000 * 60 * 60)); const mins = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)); let timeString = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`; return { statusText: `Happening in ${timeString}`, statusClass: 'status-upcoming' }; } }
 }
+
+// =======================================================
+// UPDATED: STATUS UPDATE LOGIC
+// =======================================================
 async function updateStatus(id, selectEl) { 
     const newStatus = selectEl.value; 
     selectEl.className = `status-select ${newStatus}`; 
-    await db.from('items').update({ status: newStatus }).eq('id', id); 
+    
+    const updatePayload = { status: newStatus };
+    
+    // NEW: Handle drop isolation logic
+    if (newStatus === 'sold') {
+        if (currentSalesDropId) {
+            // Sold inside a specific drop
+            updatePayload.sold_in_drop_id = currentSalesDropId;
+        } else {
+            // Sold from generic inventory (reset drop attribution)
+            updatePayload.sold_in_drop_id = null;
+        }
+    } else {
+        // If status is 'available', it is no longer sold in ANY drop
+        updatePayload.sold_in_drop_id = null;
+    }
+
+    await db.from('items').update(updatePayload).eq('id', id); 
+    
     if (currentSalesDropId) fetchSalesItems(currentSalesDropId); else fetchItems(); 
-    fetchInventoryTotal(); // UPDATE COUNT
+    fetchInventoryTotal(); 
 }
+
 async function saveEditItem() { const id = document.getElementById('edit-id').value; const rawName = document.getElementById('edit-name').value; const category = document.getElementById('edit-category').value; const cost = document.getElementById('edit-cost').value; const price = document.getElementById('edit-price').value; const formattedName = toTitleCase(rawName); const { error } = await db.from('items').update({ name: formattedName, category, cost_price: cost, sell_price: price }).eq('id', id); if (!error) { closeEditModal(); if(currentSalesDropId) fetchSalesItems(currentSalesDropId); else fetchItems(); fetchInventoryTotal(); } else alert(error.message); }
 async function confirmDelete() { if (!itemToDeleteId) return; const { error } = await db.from('items').delete().eq('id', itemToDeleteId); if (!error) { closeDeleteModal(); if(currentSalesDropId) fetchSalesItems(currentSalesDropId); else fetchItems(); fetchInventoryTotal(); } else alert(error.message); }
 function openModal() { document.getElementById('add-modal').style.display = 'flex'; }
