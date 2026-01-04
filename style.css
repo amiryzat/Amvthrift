@@ -258,16 +258,20 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
         line-height: 1.3;
     }
 
-    /* SUMMARY ROW SPACING FIX */
-    /* Add extra horizontal padding to force separation of values */
+    /* FIX: TOTAL ROW ALIGNMENT & SPACING */
+    /* 1. Reset padding to match standard cells so they align vertically */
     .summary-row td {
-        padding: 15px 30px; 
-        white-space: nowrap;
+        padding: 10px 12px !important; 
     }
-    /* Ensure the Total label also has good spacing */
-    .summary-row td:nth-child(2) {
-        padding-right: 20px;
+    
+    /* 2. Enforce min-width on columns to separate values and prevent cramping */
+    td {
+        min-width: 100px; 
     }
+    
+    /* Specific Column Widths */
+    td:nth-child(1) { min-width: 50px; } /* No. */
+    td:nth-child(2) { min-width: 150px; } /* Item Name (Keep wider) */
 
     /* 5. Sales Cards (List View) */
     .sales-card {
@@ -292,7 +296,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     input, select { font-size: 16px; }
     .table-container, .analytics-card, .sales-card, .modal-content { backdrop-filter: none; background-color: #1e1e1e; }
 
-    /* 2. Remove gradient moving background */
+    /* 8. Remove gradient moving background */
      body::before {
         filter: none !important;
         animation: none !important;
@@ -300,7 +304,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
         background-color: #121212;
      }
 
-    /* 3. Stop Constant Logo Repainting */
+    /* 9. Stop Constant Logo Repainting */
     .logo {
         animation: none !important;
         background: none !important;
