@@ -240,18 +240,33 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     }
 
     /* ITEM NAME COLUMN FIX (Column 2) */
-    /* Forces long names to wrap to 2 lines instead of overlapping */
+    /* Resets specific display properties to allow natural row expansion */
     td:nth-child(2) {
-        white-space: normal; /* Allow text to wrap */
-        min-width: 150px;    /* Ensure it has enough width to be readable */
-        max-width: 200px;    /* Prevent it from getting too wide */
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal; /* Allow text to wrap inside */
+        min-width: 150px;
+        max-width: 200px;
+        vertical-align: middle;
+    }
+
+    /* The Wrapper inside Item Name TD handles the clamping now */
+    .name-wrapper {
         display: -webkit-box;
         -webkit-line-clamp: 2; /* Limit to 2 lines */
         -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
         line-height: 1.3;
-        vertical-align: middle;
+    }
+
+    /* SUMMARY ROW SPACING FIX */
+    /* Add extra horizontal padding to force separation of values */
+    .summary-row td {
+        padding: 15px 30px; 
+        white-space: nowrap;
+    }
+    /* Ensure the Total label also has good spacing */
+    .summary-row td:nth-child(2) {
+        padding-right: 20px;
     }
 
     /* 5. Sales Cards (List View) */

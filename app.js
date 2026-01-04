@@ -301,21 +301,22 @@ function renderTableSection(tableBodyId, countId, items, isSoldTable = false, se
 
         let delay = index * 0.05; if (delay > 1.0) delay = 1.0; lastRowDelay = delay;
 
+        // WRAPPED ITEM NAME IN <div class="name-wrapper">
         let row = `<tr class="table-row-animate" style="animation-delay: ${delay}s">
-            <td class="row-number" data-label="No.">${index + 1}</td>
-            <td data-label="Item Name">${item.name}</td>
-            ${isSoldTable ? `<td style="color:#888; font-size:12px" data-label="Category">${item.category}</td>` : ''}
-            <td data-label="Cost">RM ${cost}</td>
-            <td data-label="Sell Price">RM ${sell}</td>
-            <td data-label="Profit">${profitDisplay}</td>
-            <td data-label="Loss">${lossDisplay}</td>
-            <td data-label="Status">
+            <td class="row-number">${index + 1}</td>
+            <td><div class="name-wrapper">${item.name}</div></td>
+            ${isSoldTable ? `<td style="color:#888; font-size:12px">${item.category}</td>` : ''}
+            <td>RM ${cost}</td>
+            <td>RM ${sell}</td>
+            <td>${profitDisplay}</td>
+            <td>${lossDisplay}</td>
+            <td>
                 <select class="status-select ${statusClass}" onchange="updateStatus('${item.id}', this)">
                     <option value="available" ${item.status === 'available' ? 'selected' : ''}>Available</option>
                     <option value="sold" ${item.status === 'sold' ? 'selected' : ''}>Sold</option>
                 </select>
             </td>
-            <td data-label="Action">
+            <td>
                 <div class="action-cell">
                     <button class="edit-btn" onclick="openEditModal('${item.id}', '${item.name}', '${item.category}', '${cost}', '${sell}')">Edit</button>
                     ${deleteAction}
@@ -331,17 +332,7 @@ function renderTableSection(tableBodyId, countId, items, isSoldTable = false, se
     const lossTotal = sumLoss > 0 ? `<span class="loss-text">RM ${sumLoss}</span>` : '-';
     let summaryDelay = lastRowDelay + 0.05; if (summaryDelay > 1.5) summaryDelay = 1.5; 
 
-    const summaryRow = `<tr class="summary-row table-row-animate" style="animation-delay: ${summaryDelay}s">
-        <td data-label=""></td> 
-        <td style="text-transform: uppercase; letter-spacing: 1px;" data-label="Total">Total</td> 
-        ${isSoldTable ? '<td data-label=""></td>' : ''} 
-        <td data-label="Cost">${costTotal}</td> 
-        <td data-label="Sell Price">${sellTotal}</td> 
-        <td data-label="Profit">${profitTotal}</td> 
-        <td data-label="Loss">${lossTotal}</td> 
-        <td data-label=""></td> 
-        <td data-label=""></td> 
-    </tr>`;
+    const summaryRow = `<tr class="summary-row table-row-animate" style="animation-delay: ${summaryDelay}s"><td></td> <td style="text-transform: uppercase; letter-spacing: 1px;">Total</td> ${isSoldTable ? '<td></td>' : ''} <td>${costTotal}</td> <td>${sellTotal}</td> <td>${profitTotal}</td> <td>${lossTotal}</td> <td></td> <td></td> </tr>`;
     list.innerHTML += summaryRow;
 }
 
