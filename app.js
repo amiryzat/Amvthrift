@@ -25,7 +25,7 @@ let salesDataLoaded = false;
 
 // --- INITIALIZE ---
 window.onload = function() {
-    fetchItems();
+    // REMOVED: fetchItems(); -> Now handled by restorePageContext
     fetchInventoryTotal(); 
     
     // NEW: Init Time Dropdown options
@@ -48,7 +48,9 @@ window.onload = function() {
     setupEnterSubmit('edit-modal', saveEditItem);
     setupEnterSubmit('sales-modal', saveSalesDrop);
     
-    triggerAnimation('inventory-page');
+    // NEW: Restore last visited page instead of defaulting to inventory
+    restorePageContext();
+    
     updateSortMenuUI(); 
     
     document.addEventListener('click', (e) => {
@@ -61,6 +63,51 @@ window.onload = function() {
         }
     });
 };
+
+// =======================================================
+// NEW: PAGE PERSISTENCE LOGIC
+// =======================================================
+
+function restorePageContext() {
+    // Check localStorage for the last active page
+    const lastPage = localStorage.getItem('amv_activePage') || 'inventory'; 
+    
+    if (lastPage === 'sales-overview') {
+        const dropId = localStorage.getItem('amv_dropId');
+        
+        if (dropId) {
+            // Restore Global Variable
+            currentSalesDropId = dropId;
+            
+            // Restore UI Header Elements from Storage (prevents pop-in)
+            const name = localStorage.getItem('amv_dropName') || "Sales Drop";
+            const displayDate = localStorage.getItem('amv_dropDisplayDate') || "--/--/----";
+            const rawDate = localStorage.getItem('amv_dropRawDate');
+            const rawTime = localStorage.getItem('amv_dropRawTime');
+            
+            document.getElementById('overview-title').innerText = name;
+            document.getElementById('overview-date').innerText = displayDate;
+            
+            // Restore Status Badge
+            if (rawDate && rawTime) {
+                const { statusText, statusClass } = getSalesStatus(rawDate, rawTime);
+                const statusEl = document.getElementById('overview-status');
+                statusEl.innerText = statusText;
+                statusEl.className = `sales-status ${statusClass}`;
+            }
+
+            // Navigate and Fetch Data
+            showPage('sales-overview'); 
+            fetchSalesItems(dropId);
+        } else {
+            // Fallback to sales list if ID is missing/corrupt
+            showPage('sales'); 
+        }
+    } else {
+        // Normal Pages (Inventory / Sales)
+        showPage(lastPage);
+    }
+}
 
 // =======================================================
 // NEW: CUSTOM TIME PICKER LOGIC
@@ -446,10 +493,20 @@ function openSalesOverview(id, name, displayDate, rawDate, rawTime) {
     currentSalesDropId = id;
     document.getElementById('overview-title').innerText = name;
     document.getElementById('overview-date').innerText = displayDate;
+    
+    // NEW: Save Details to LocalStorage for Persistence
+    localStorage.setItem('amv_activePage', 'sales-overview');
+    localStorage.setItem('amv_dropId', id);
+    localStorage.setItem('amv_dropName', name);
+    localStorage.setItem('amv_dropDisplayDate', displayDate);
+    localStorage.setItem('amv_dropRawDate', rawDate);
+    localStorage.setItem('amv_dropRawTime', rawTime);
+
     const { statusText, statusClass } = getSalesStatus(rawDate, rawTime);
     const statusEl = document.getElementById('overview-status');
     statusEl.innerText = statusText;
     statusEl.className = `sales-status ${statusClass}`;
+    
     showPage('sales-overview');
     
     const input = document.getElementById('overview-search-box');
@@ -735,6 +792,11 @@ function showPage(pageId) {
     document.getElementById('btn-inv').classList.remove('active-btn'); 
     document.getElementById('btn-sales').classList.remove('active-btn'); 
     
+    // NEW: Save Navigation State (except for sub-pages like overview which are handled separately)
+    if (pageId === 'inventory' || pageId === 'sales') {
+        localStorage.setItem('amv_activePage', pageId);
+    }
+
     if (pageId === 'inventory') { 
         document.getElementById('btn-inv').classList.add('active-btn'); 
         currentSalesDropId = null; 
