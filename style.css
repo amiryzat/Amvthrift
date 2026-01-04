@@ -224,15 +224,21 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     }
 
     table {
-        min-width: 800px;
-        width: 100%;
+        /* FIX: Change from fixed to auto so columns adapt to content width (e.g. long totals) */
+        table-layout: auto; 
+        /* FIX: Force table to be as wide as its content content, triggering scroll instead of squash */
+        width: max-content; 
+        min-width: 100%;
     }
 
     /* Standard cell styling - Keep whitespace nowrap generally */
     th, td {
         white-space: nowrap; 
         padding: 10px 12px;
+        min-width: 100px; /* Minimum breathing room for columns */
     }
+    
+    td:nth-child(1) { min-width: 50px; } /* No. */
     
     /* Ensure action buttons don't stack weirdly */
     .action-cell {
@@ -259,19 +265,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     }
 
     /* FIX: TOTAL ROW ALIGNMENT & SPACING */
-    /* 1. Reset padding to match standard cells so they align vertically */
     .summary-row td {
-        padding: 10px 12px !important; 
+        padding: 10px 12px !important; /* Match standard cells */
+        white-space: nowrap; /* Ensure totals never wrap */
     }
-    
-    /* 2. Enforce min-width on columns to separate values and prevent cramping */
-    td {
-        min-width: 100px; 
-    }
-    
-    /* Specific Column Widths */
-    td:nth-child(1) { min-width: 50px; } /* No. */
-    td:nth-child(2) { min-width: 150px; } /* Item Name (Keep wider) */
 
     /* 5. Sales Cards (List View) */
     .sales-card {
