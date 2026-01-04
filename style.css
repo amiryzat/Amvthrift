@@ -192,6 +192,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
    MOBILE ONLY STYLES (Max-Width 768px)
    Everything inside here ONLY affects phone screens.
    ========================================================================== */
+
 @media screen and (max-width: 768px) {
     /* 1. Reset Page & Layout */
     .page { padding: 15px; padding-bottom: 80px; }
@@ -317,4 +318,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
         color: #fff !important;
         -webkit-text-fill-color: #fff !important;
     }
+
+    
 }
