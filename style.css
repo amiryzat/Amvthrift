@@ -238,20 +238,29 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
         min-width: 100px; /* Minimum breathing room for columns */
     }
     
-    td:nth-child(1) { min-width: 50px; } /* No. */
+    /* === FIX: COMPACT NO. & NAME COLUMN ON MOBILE === */
+    
+    /* Column 1 (No.): Shrink to minimal width */
+    th:nth-child(1), td:nth-child(1) {
+        min-width: 35px;
+        width: 35px;
+        padding-right: 2px; /* Pull the next column closer */
+        text-align: center;
+    }
+    
+    /* Column 2 (Item Name): Reduce left padding to hug Column 1 */
+    th:nth-child(2), td:nth-child(2) {
+        padding-left: 5px;
+        /* Allow text wrap logic below */
+        white-space: normal; 
+        min-width: 150px;
+        max-width: 200px;
+        vertical-align: middle;
+    }
     
     /* Ensure action buttons don't stack weirdly */
     .action-cell {
         flex-wrap: nowrap;
-    }
-
-    /* ITEM NAME COLUMN FIX (Column 2) */
-    /* Resets specific display properties to allow natural row expansion */
-    td:nth-child(2) {
-        white-space: normal; /* Allow text to wrap inside */
-        min-width: 150px;
-        max-width: 200px;
-        vertical-align: middle;
     }
 
     /* The Wrapper inside Item Name TD handles the clamping now */
