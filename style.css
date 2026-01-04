@@ -243,8 +243,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover, input[type="time"]:
     /* Column 1 (No.): Shrink to minimal width */
     th:nth-child(1), td:nth-child(1) {
         min-width: 35px;
-        width: 35px;
-        padding-right: 2px; /* Pull the next column closer */
+        width: 39px;
+        padding-right: 10px; /* Pull the next column closer */
         text-align: center;
     }
     
