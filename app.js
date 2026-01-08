@@ -517,6 +517,9 @@ function openSalesOverview(id, name, displayDate, rawDate, rawTime) {
     fetchSalesItems(id);
 }
 
+// =======================================================
+// FIXED: FETCH SALES ITEMS
+// =======================================================
 async function fetchSalesItems(dropId, searchQuery = "") {
     if (!dropId) return;
     
@@ -534,16 +537,13 @@ async function fetchSalesItems(dropId, searchQuery = "") {
         : flatItems.filter(i => i.name.toLowerCase().includes(search));
 
     // =======================================================
-    // NEW: ISOLATION LOGIC
-    // We mask the status of an item to 'available' IF:
-    // 1. It is 'sold' globally, BUT
-    // 2. It was NOT sold in THIS specific drop (sold_in_drop_id != dropId)
-    // This ensures past drops don't show items as sold if they sold later in a new drop.
+    // FIX APPLIED HERE: ID TYPE NORMALIZATION
+    // We convert both IDs to String to ensure "14" matches 14
     // =======================================================
     const processedItems = filteredItems.map(item => {
         const localItem = { ...item }; // shallow copy
         
-        if (localItem.status === 'sold' && localItem.sold_in_drop_id !== dropId) {
+        if (localItem.status === 'sold' && String(localItem.sold_in_drop_id) !== String(dropId)) {
             localItem.status = 'available'; // Treated as available for this drop's history
         }
         
