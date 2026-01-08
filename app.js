@@ -826,6 +826,11 @@ async function confirmDeleteSales() {
 }
 
 function showPage(pageId) { 
+    // === NEW: Auto-Reset Filter when leaving Inventory ===
+    if (pageId !== 'inventory') {
+        resetInventoryFilter();
+    }
+
     document.getElementById('inventory-page').style.display = 'none'; 
     document.getElementById('sales-page').style.display = 'none'; 
     document.getElementById('sales-overview-page').style.display = 'none'; 
@@ -856,6 +861,30 @@ function showPage(pageId) {
         triggerAnimation('sales-overview-page'); 
     } 
 }
+
+// =======================================================
+// NEW: SORTING LOGIC FUNCTIONS
+// =======================================================
+
+function applySort(type) {
+    if(type==='name') currentSort={field:'name',direction:'asc'};
+    else if(type==='date_new') currentSort={field:'created_at',direction:'desc'};
+    else if(type==='date_old') currentSort={field:'created_at',direction:'asc'};
+    else if(type==='price_high') currentSort={field:'price',direction:'desc'};
+    else if(type==='price_low') currentSort={field:'price',direction:'asc'};
+    updateSortMenuUI(); fetchItems(document.getElementById('search-box').value);
+}
+
+function updateSortMenuUI(){
+    document.querySelectorAll('.sort-option').forEach(e=>e.classList.remove('active'));
+    let id='opt-new';
+    if(currentSort.field==='name') id='opt-name';
+    else if(currentSort.field==='price') id=currentSort.direction==='asc'?'opt-low':'opt-high';
+    else if(currentSort.field==='created_at'&&currentSort.direction==='asc') id='opt-old';
+    const el=document.getElementById(id); if(el) el.classList.add('active');
+}
+
+function resetInventoryFilter(){ currentSort={field:'created_at',direction:'desc'}; updateSortMenuUI(); }
 
 function toTitleCase(str) { return str.replace(/\w\S*/g, function(txt) { if (txt === txt.toUpperCase()) return txt; return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); }); }
 function triggerAnimation(id) { const el = document.getElementById(id); el.classList.remove('animate-enter'); void el.offsetWidth; el.classList.add('animate-enter'); }
