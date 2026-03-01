@@ -8,11 +8,18 @@
     font-family: 'Montserrat', sans-serif;
 }
 
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 body {
     background-color: #121212;
     color: #ffffff;
     position: relative;
-    overflow-x: hidden;
+    padding-top: 0;
+    /* overflow-x handled natively above */
 }
 
 body::before {
@@ -54,7 +61,7 @@ nav {
     backdrop-filter: blur(10px);
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 100;
 }
 
 .logo {
@@ -119,7 +126,9 @@ nav {
     border: none;
     color: #fff;
     cursor: pointer;
-    z-index: 1001;
+    position: relative;
+    z-index: 10;
+    /* Stack above .menu (z=5) */
     padding: 8px;
     min-width: 44px;
     min-height: 44px;
@@ -1406,26 +1415,64 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 @media screen and (max-width: 768px) {
 
     /* 1. Reset Page & Layout */
+    body {
+        padding-top: 60px;
+        /* Compensate for fixed nav header taking it out of flow */
+    }
+
     .page {
         padding: 15px;
         padding-bottom: 80px;
     }
 
-
     nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
         padding: 15px 20px;
+        display: flex;
+        align-items: center;
         justify-content: space-between;
+        background-color: rgba(18, 18, 18, 0.8);
+        transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.3s ease;
+    }
+
+    .back-link {
+        padding-top: 20px;
+    }
+
+    nav.scrolled {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    nav.open {
+        background-color: transparent !important;
+        border-bottom-color: transparent !important;
+        box-shadow: none !important;
     }
 
     .logo {
         font-size: 20px;
+        transition: filter 0.35s ease, opacity 0.35s ease;
+        position: relative;
+        z-index: 1;
+        /* Under .menu (z=5) */
     }
+
+    nav.open .logo {
+        filter: blur(8px);
+        opacity: 0.4;
+    }
+
 
     /* --- SIDEBAR DRAWER (slides in from right) --- */
     .menu {
         position: fixed;
         top: 0;
-        right: -100%;
+        right: 0;
+        transform: translateX(100%);
         width: min(280px, 80vw);
         height: 100dvh;
         background: rgba(16, 16, 16, 0.97);
@@ -1435,13 +1482,14 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
         align-items: center;
         gap: 28px;
         padding: 50px 30px;
-        z-index: 1001;
-        transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        z-index: 5;
+        /* Between .logo (1) and .hamburger-btn (10) */
+        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         overflow-y: auto;
     }
 
     .menu.open {
-        right: 0;
+        transform: translateX(0);
     }
 
     /* Items hidden until drawer fully slides in; each fades up with stagger */
@@ -1490,7 +1538,8 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     }
 
     h1 {
-        font-size: 28px;
+        font-size: 27px;
+        padding-top: 18px;
     }
 
     .actions {
@@ -1709,12 +1758,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     }
 
     /* 9. Stop Constant Logo Repainting */
-    .logo {
-        animation: none !important;
-        background: none !important;
-        color: #fff !important;
-        -webkit-text-fill-color: #fff !important;
-    }
+
 
     /* 10. Sold Page: Tabs, Pagination & Sort */
     .sold-category-tabs {

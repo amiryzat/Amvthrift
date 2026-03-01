@@ -1322,9 +1322,11 @@ function openMobileMenu() {
     const menu = document.getElementById('nav-menu');
     const overlay = document.getElementById('mobile-overlay');
     const btn = document.getElementById('mobile-menu-btn');
+    const nav = document.querySelector('nav');
     if (menu) menu.classList.add('open');
     if (overlay) overlay.classList.add('open');
     if (btn) btn.classList.add('open');
+    if (nav) nav.classList.add('open');
     document.body.style.overflow = 'hidden';
 }
 
@@ -1332,8 +1334,22 @@ function closeMobileMenu() {
     const menu = document.getElementById('nav-menu');
     const overlay = document.getElementById('mobile-overlay');
     const btn = document.getElementById('mobile-menu-btn');
+    const nav = document.querySelector('nav');
     if (menu) menu.classList.remove('open');
     if (overlay) overlay.classList.remove('open');
     if (btn) btn.classList.remove('open');
+    if (nav) nav.classList.remove('open');
     document.body.style.overflow = '';
 }
+
+// Add scroll listener for subtle sticky header shadow
+window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    if (nav) {
+        if (window.scrollY > 10) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
+    }
+});
